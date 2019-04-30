@@ -1,0 +1,59 @@
+﻿@using Microsoft.AspNetCore.Html
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model QuestionnaireMVC.Models.QuestionnaireViewModel
+@{
+    ViewData["Title"] = "Ответьте, пожалуйста, на вопрос";
+}
+
+@Html.ActionLink("Перезапустить","Index", "Home",null, new{ @class = "btn btn-default" })
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <div>
+            @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+        </div>
+        <div class="form-horizontal">
+            @Html.HiddenFor(model => model.RespondentId)
+            @Html.DisplayFor(model => model.CurrentQuestion.QuestionId)
+            .
+            @Html.DisplayFor(model => model.CurrentQuestion.QuestionContent)
+
+            @switch (Model.CurrentQuestion.QuestionType.TypeName)
+            {
+                case "int":
+                    @Html.TextBoxFor(model => model.AnswerContent, new { type = "number", id = "AnswerContent", name = "AnswerContent" });
+                    break;
+
+                default:
+                case "string":
+                    @Html.TextBoxFor(model => model.AnswerContent, new { id = "AnswerContent", name = "AnswerContent", placeholder = Model.CurrentQuestion.QuestionContent });
+                    break;
+
+                case "date":
+                    @Html.TextBoxFor(model => model.AnswerContent, new { type = "date", id = "AnswerContent", name = "AnswerContent" });
+                    break;
+
+                case "bool":
+                    @Html.CheckBoxFor(model=> model.AnswerContentAsBool, new { id = "AnswerContentAsBool", name = "AnswerContentAsBool" })
+                    break;
+
+                case "sexEnum":
+                    @Html.DropDownList("AnswerContent", new SelectList(Model.SexList, "Id", "Name"), new { id = "AnswerContent", name = "AnswerContent" });
+                    break;
+
+                case "maritalStatusEnum":
+                    @Html.DropDownList("AnswerContent", new SelectList(Model.MaritalStatusList, "Id", "Name"), new {  id = "AnswerContent", name = "AnswerContent" });
+                    break;
+            }
+        </div>
+        <div class="form-horizontal">
+            @if (Model.CurrentQuestion.QuestionId > 1)
+                {
+                    @Html.ActionLink("Назад", "AnswerTheQuestion", "Home", new {respondentId = Model.RespondentId, questionId = Model.CurrentQuestion.QuestionId - 1}, new {@class = "btn btn-default"})
+            }
+            <input class="btn btn-primary" type="submit" value="Далее"/>            
+        </div>
+    </div>
+}
